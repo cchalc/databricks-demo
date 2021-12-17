@@ -1,5 +1,5 @@
 # Databricks notebook source
-#dbutils.widgets.dropdown("reset_all_data", "false", ["true", "false"])
+# dbutils.widgets.dropdown("reset_all_data", "false", ["true", "false"])
 
 # COMMAND ----------
 
@@ -80,3 +80,11 @@ spark.conf.set("spark.sql.streaming.checkpointLocation", path+"/turbine/_checkpo
 
 #Allow schema inference for auto loader
 spark.conf.set("spark.databricks.cloudFiles.schemaInference.enabled", "true")
+
+# COMMAND ----------
+
+1+2
+
+# COMMAND ----------
+
+

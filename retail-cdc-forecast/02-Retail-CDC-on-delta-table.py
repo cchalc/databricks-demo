@@ -10,6 +10,10 @@
 
 # COMMAND ----------
 
+dbutils.widgets.dropdown("reset_all_data", "false", ["true", "false"])
+
+# COMMAND ----------
+
 # MAGIC %run ./resources/00-setup $reset_all_data=$reset_all_data
 
 # COMMAND ----------
@@ -54,6 +58,11 @@
 # MAGIC %sql 
 # MAGIC DELETE FROM retail_client_silver WHERE id = 1;
 # MAGIC UPDATE retail_client_silver SET name='Marwa' WHERE id = 13;
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SELECT * FROM retail_client_silver where id in (1, 13);
 
 # COMMAND ----------
 

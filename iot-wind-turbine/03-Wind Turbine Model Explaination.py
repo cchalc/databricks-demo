@@ -17,11 +17,15 @@
 
 # COMMAND ----------
 
+dbutils.widgets.dropdown("reset_all_data", "false", ["true", "false"])
+
+# COMMAND ----------
+
 # MAGIC %run ./resources/00-setup $reset_all_data=false
 
 # COMMAND ----------
 
-model_from_registry = mlflow.spark.load_model('models:/turbine_gbt/production')
+model_from_registry = mlflow.spark.load_model('models:/cchalc_turbine_gbt/production')
 
 # COMMAND ----------
 
@@ -123,3 +127,7 @@ def compute_shap_values(iterator):
     yield pd.DataFrame(explainer.shap_values(X, check_additivity=False))
 
 display(features.mapInPandas(compute_shap_values, schema=", ".join([x+"_shap_value float" for x in features.columns])))
+
+# COMMAND ----------
+
+

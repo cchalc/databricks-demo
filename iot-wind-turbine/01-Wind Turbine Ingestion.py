@@ -26,6 +26,10 @@
 
 # COMMAND ----------
 
+# dbutils.widgets.dropdown("reset_all_data", "false", ["true", "false"])
+
+# COMMAND ----------
+
 # DBTITLE 1,Let's prepare our data first
 # MAGIC %run ./resources/00-setup $reset_all_data=$reset_all_data
 
@@ -36,9 +40,29 @@
 
 # COMMAND ----------
 
+# MAGIC %fs ls /mnt/quentin-demo-resources/turbine/incoming-data
+
+# COMMAND ----------
+
 # DBTITLE 1,Let's explore what is being delivered by our wind turbines stream: (key, json)
 # MAGIC %sql 
 # MAGIC select * from parquet.`/mnt/quentin-demo-resources/turbine/incoming-data`
+
+# COMMAND ----------
+
+import re
+
+
+# COMMAND ----------
+
+current_user = dbutils.notebook.entry_point.getDbutils().notebook().getContext().tags().apply('user')
+dbName = re.sub(r'\W+', '_', current_user)
+path = "/Users/{}/demo".format(current_user)
+dbutils.widgets.text("path", path, "path")
+dbutils.widgets.text("dbName", dbName, "dbName")
+print("using path {}".format(path))
+spark.sql("""create database if not exists {} LOCATION '{}/global_demo/tables' """.format(dbName, path))
+spark.sql("""USE {}""".format(dbName))
 
 # COMMAND ----------
 
@@ -50,20 +74,20 @@
 
 # COMMAND ----------
 
-#Option 1, read from kinesis directly
-#Load stream from Kafka
-bronzeDF = spark.readStream \
-                .format("kafka") \
-                .option("kafka.bootstrap.servers", "kafkaserver1:9092,kafkaserver2:9092") \
-                .option("subscribe", "turbine") \
-                .load()
+# #Option 1, read from kinesis directly
+# #Load stream from Kafka
+# bronzeDF = spark.readStream \
+#                 .format("kafka") \
+#                 .option("kafka.bootstrap.servers", "kafkaserver1:9092,kafkaserver2:9092") \
+#                 .option("subscribe", "turbine") \
+#                 .load()
 
-#Write the output to a delta table
-bronzeDF.selectExpr("CAST(key AS STRING) as key", "CAST(value AS STRING) as value") \
-        .writeStream \
-        .option("ignoreChanges", "true") \
-        .trigger(once=True) \
-        .table("turbine_bronze")
+# #Write the output to a delta table
+# bronzeDF.selectExpr("CAST(key AS STRING) as key", "CAST(value AS STRING) as value") \
+#         .writeStream \
+#         .option("ignoreChanges", "true") \
+#         .trigger(once=True) \
+#         .table("turbine_bronze")
 
 # COMMAND ----------
 
@@ -108,9 +132,9 @@ spark.readStream.table('turbine_bronze') \
 
 # MAGIC %sql
 # MAGIC -- let's add some constraints in our table, to ensure or ID can't be negative (need DBR 7.5)
-# MAGIC ALTER TABLE turbine_silver ADD CONSTRAINT idGreaterThanZero CHECK (id >= 0);
+# MAGIC -- ALTER TABLE turbine_silver ADD CONSTRAINT idGreaterThanZero CHECK (id >= 0);
 # MAGIC -- let's enable the auto-compaction
-# MAGIC alter table turbine_silver set tblproperties ('delta.autoOptimize.autoCompact' = true, 'delta.autoOptimize.optimizeWrite' = true);
+# MAGIC -- alter table turbine_silver set tblproperties ('delta.autoOptimize.autoCompact' = true, 'delta.autoOptimize.optimizeWrite' = true);
 # MAGIC 
 # MAGIC -- Select data
 # MAGIC select * from turbine_silver;
@@ -184,3 +208,7 @@ turbine_stream.join(turbine_status, ['id'], 'left') \
 # MAGIC ![turbine-demo-dashboard](https://github.com/QuentinAmbard/databricks-demo/raw/main/iot-wind-turbine/resources/images/turbine-demo-dashboard1.png)
 # MAGIC 
 # MAGIC [Open SQL Analytics dashboard](https://e2-demo-west.cloud.databricks.com/sql/dashboards/a81f8008-17bf-4d68-8c79-172b71d80bf0-turbine-demo?o=2556758628403379)
+
+# COMMAND ----------
+
+

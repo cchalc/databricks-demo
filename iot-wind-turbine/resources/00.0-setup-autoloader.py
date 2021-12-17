@@ -1,5 +1,5 @@
 # Databricks notebook source
-#dbutils.widgets.dropdown("reset_all_data", "false", ["true", "false"])
+# dbutils.widgets.dropdown("reset_all_data", "false", ["true", "false"])
 
 # COMMAND ----------
 
@@ -9,3 +9,11 @@
 
 dbutils.fs.rm(path+"/turbine/incoming-data-json", True) 
 spark.read.format("json").option("inferSchema", "true").load("/mnt/quentin-demo-resources/turbine/incoming-data-json").limit(10).repartition(1).write.format("json").mode("overwrite").save(path+"/turbine/incoming-data-json")
+
+# COMMAND ----------
+
+# dbutils.fs.ls("/Users/christopher.chalcraft@databricks.com/demo/turbine/incoming-data-json")
+
+# COMMAND ----------
+
+

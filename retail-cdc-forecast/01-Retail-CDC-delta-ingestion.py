@@ -15,11 +15,19 @@
 
 # COMMAND ----------
 
+dbutils.widgets.dropdown("reset_all_data", "false", ["true", "false"])
+
+# COMMAND ----------
+
 # MAGIC %run ./resources/00-setup $reset_all_data=$reset_all_data
 
 # COMMAND ----------
 
 display(spark.read.format("csv").schema("name string, address string, email string, id long, operation string, operation_date timestamp").load('/mnt/quentin-demo-resources/retail/clients/raw_cdc'))
+
+# COMMAND ----------
+
+# MAGIC %fs ls /mnt/quentin-demo-resources/retail/clients/raw_cdc
 
 # COMMAND ----------
 
